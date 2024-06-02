@@ -2,7 +2,7 @@ const userModel = require("../models/userSchema");
 
 const createUser = async (req, res) => {
   try {
-    const { name, email, password } = req.query;
+    const { name, email, password } = req.body;
     
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -61,4 +61,31 @@ const deleteUsers = async (req, res) => {
   }
 };
 
-module.exports = { createUser, getAllUser, updateUsers, deleteUsers };
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User Not Exists!" });
+    }
+
+    if (user.password === password) {
+      return res.status(200).json({ message: "Successfully logged in!" });
+    } else {
+      return res.status(401).json({ message: "Invalid credentials!" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
+module.exports = { createUser, getAllUser, updateUsers, deleteUsers, loginUser };
